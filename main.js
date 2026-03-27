@@ -6,7 +6,7 @@ const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// 💡 載入舊對話紀錄
+// 💡 頁面載入時讀取 localStorage
 window.onload = () => {
     const savedChat = localStorage.getItem('ming_chat_history');
     if (savedChat) {
@@ -15,14 +15,14 @@ window.onload = () => {
     }
 };
 
-// 處理 Markdown (目前先處理加粗)
-function mdToHtml(text) {
-    return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
-}
-
 // 儲存對話到瀏覽器記憶體
 function saveChat() {
     localStorage.setItem('ming_chat_history', chatWindow.innerHTML);
+}
+
+// 處理 Markdown 加粗
+function mdToHtml(text) {
+    return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 }
 
 async function sendMessage() {
@@ -53,12 +53,12 @@ async function sendMessage() {
 
         const aiRawText = data.candidates[0].content.parts[0].text;
         
-        // 渲染並儲存
+        // 渲染 Markdown 並存檔
         aiMessageDiv.innerHTML = mdToHtml(aiRawText);
         saveChat();
 
     } catch (error) {
-        aiMessageDiv.innerText = "抱歉，連線發生一點問題：" + error.message;
+        aiMessageDiv.innerText = "抱歉，連線失敗：" + error.message;
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
