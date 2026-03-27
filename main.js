@@ -1,4 +1,4 @@
-const API_KEY = "__API_KEY_PLACEHOLDER__"; 
+const API_KEY = "__API_KEY_PLACEHOLDER__";
 const MODEL_NAME = "gemini-3-flash-preview"; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
