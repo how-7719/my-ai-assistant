@@ -1,0 +1,17 @@
+{
+  "short_name": "AI助理",
+  "name": "我的人工智慧助手",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/1698/1698535.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "./",
+  "theme_color": "#007bff",
+  "description": "基於 Gemini 的個人 AI 助理"
+}
