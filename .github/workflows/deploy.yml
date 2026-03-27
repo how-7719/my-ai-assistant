@@ -3,6 +3,12 @@ name: Deploy Ming's AI Assistant
 on:
   push:
     branches: ["main"]
+  workflow_dispatch: # 讓你可以手動觸發測試
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   build-and-deploy:
@@ -13,8 +19,17 @@ jobs:
 
       - name: Inject API Key
         run: |
-          # 這裡會把 main.js 裡的標籤換成真正的 Secret
-          sed -i 's/__API_KEY_PLACEHOLDER__/${{ secrets.GEMINI_API_KEY }}/g' main.js
+          # 檢查 main.js 是否存在並進行替換
+          if [ -f main.js ]; then
+            sed -i 's/__API_KEY_PLACEHOLDER__/${{ secrets.GEMINI_API_KEY }}/g' main.js
+            echo "API Key 注入成功！"
+          else
+            echo "找不到 main.js 檔案！"
+            exit 1
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
