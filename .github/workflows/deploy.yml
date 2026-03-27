@@ -17,16 +17,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Inject API Key
+      - name: Check files and Inject API Key
         run: |
-          # 1. 確保金鑰變數存在
+          # 1. 先列出所有檔案，確認 main.js 在哪裡
+          echo "目前目錄下的檔案有："
+          ls -R
+
+          # 2. 檢查 Secret 是否存在
           if [ -z "${{ secrets.GEMINI_API_KEY }}" ]; then
-            echo "❌ 錯誤：找不到 GEMINI_API_KEY，請檢查 Secret 設定。"
+            echo "❌ 錯誤：找不到 GEMINI_API_KEY Secret！"
             exit 1
           fi
 
-          # 2. 使用 @ 作為分隔符，強制替換 main.js 裡的標籤
-          # 注意：這是最穩定的語法
+          # 3. 執行替換 (使用雙引號確保變數注入)
+          # 如果你的 main.js 在根目錄，這行會生效
           sed -i "s@__API_KEY_PLACEHOLDER__@${{ secrets.GEMINI_API_KEY }}@g" main.js
           
           echo "✅ 金鑰替換動作已執行。"
