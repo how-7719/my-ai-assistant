@@ -1,8 +1,8 @@
-// 1. 確認金鑰為你最新的那把
-const API_KEY = "AIzaSyD3AhHNmYiRrRWCHFgD0ImARhLas_oUX6A"; 
+// 1. 保留你測試成功的 API Key
+const API_KEY = "AIzaSyBnSKr6hZpUFukLfy-QlzQPcplzQCpzDQw"; 
 
-// 2. 萬用路徑修正：如果 v1beta 失敗，這組網址是目前最穩定的
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+// 2. 絕對不動的路徑：這是 Ming 的專屬正確通道
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -25,30 +25,25 @@ async function sendMessage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                // 使用官方建議的系統指令格式
-                system_instruction: {
-                    parts: [{ text: "你是 Ming 的專屬個人助理。語氣親切專業，並在對話中自然地稱呼使用者為 Ming。" }]
-                },
-                contents: [
-                    {
-                        role: "user",
-                        parts: [{ text: text }]
-                    }
-                ]
+                contents: [{ 
+                    parts: [{ 
+                        // 在訊息前面偷偷塞入指令，讓它記得你是 Ming
+                        text: `(指令：我是 Ming。請用親切專業的語氣回答我，並偶爾稱呼我為 Ming。)\n${text}` 
+                    }] 
+                }]
             })
         });
 
         const data = await response.json();
 
         if (data.error) {
-            // 如果還是 404，這裡會提供更詳細的偵錯資訊
             throw new Error(`代碼 ${data.error.code}: ${data.error.message}`);
         }
 
         const aiText = data.candidates[0].content.parts[0].text;
         aiMessageDiv.innerText = aiText;
     } catch (error) {
-        aiMessageDiv.innerText = '連線失敗：' + error.message + '\n\n提示：Ming，請檢查 Google AI Studio 是否已將此 API Key 設定為 Enabled。';
+        aiMessageDiv.innerText = '連線失敗：' + error.message;
         console.error('API Error:', error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
