@@ -1,21 +1,48 @@
 import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-// ⚠️ 注意：這是在前端環境，正式發布建議使用後端中轉。
-// 目前為了讓你快速測試，請先填入你的 API Key。
-const API_KEY = "AIzaSyCXkyrtW3rC_8-pqAVUv2zYbUtB8BnHR_A"; 
+// ⚠️ 請在下方雙引號內貼上你的 API Key (AIza... 開頭的那串)
+const API_KEY = "你的_API_KEY_貼在這邊"; 
+
 const genAI = new GoogleGenerativeAI(API_KEY);
+// 使用最穩定的模型名稱
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-async function getAIResponse(prompt) {
-    const chat = model.startChat({ history: [] });
-    const result = await chat.sendMessage(prompt);
-    return result.response.text();
+// 處理發送訊息的邏輯
+async function sendMessage() {
+    const text = inputField.value.trim();
+    if (!text) return;
+
+    // 1. 顯示使用者訊息
+    addMessage(text, 'user');
+    inputField.value = '';
+
+    // 2. 顯示 AI 正在思考
+    const aiMessageDiv = document.createElement('div');
+    aiMessageDiv.className = 'message ai';
+    aiMessageDiv.innerText = '正在思考中...';
+    chatWindow.appendChild(aiMessageDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    try {
+        // 3. 呼叫 Gemini API
+        const result = await model.generateContent(text);
+        const response = await result.response;
+        const aiText = response.text();
+        
+        // 4. 將「正在思考」換成真正的回覆
+        aiMessageDiv.innerText = aiText;
+    } catch (error) {
+        aiMessageDiv.innerText = '發生錯誤：' + error.message;
+        console.error('API Error:', error);
+    }
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
+// 輔助函式：新增訊息泡泡
 function addMessage(text, role) {
     const div = document.createElement('div');
     div.className = `message ${role}`;
@@ -24,23 +51,8 @@ function addMessage(text, role) {
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-sendBtn.onclick = async () => {
-    const text = inputField.value.trim();
-    if (!text) return;
-
-    addMessage(text, 'user');
-    inputField.value = '';
-
-    // 顯示「正在思考...」的狀態
-    const loadingDiv = document.createElement('div');
-    loadingDiv.className = 'message ai';
-    loadingDiv.innerText = '正在思考中...';
-    chatWindow.appendChild(loadingDiv);
-
-    try {
-        const response = await getAIResponse(text);
-        loadingDiv.innerText = response;
-    } catch (error) {
-        loadingDiv.innerText = '發生錯誤：' + error.message;
-    }
+// 綁定點擊與 Enter 鍵
+sendBtn.onclick = sendMessage;
+inputField.onkeypress = (e) => {
+    if (e.key === 'Enter') sendMessage();
 };
