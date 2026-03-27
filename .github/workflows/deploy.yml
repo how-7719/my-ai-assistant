@@ -17,7 +17,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Inject API Key
+     - name: Inject API Key
+        run: |
+          # 使用 sed 將佔位符替換為真正的 Secret
+          # 注意：我們使用單引號包圍變數，確保特殊字元不會失效
+          sed -i "s/__API_KEY_PLACEHOLDER__/${{ secrets.GEMINI_API_KEY }}/g" main.js
+          echo "金鑰注入動作已執行"
         run: |
           # 檢查 main.js 是否存在並進行替換
           if [ -f main.js ]; then
