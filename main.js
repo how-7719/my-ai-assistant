@@ -1,9 +1,10 @@
-// 1. 使用你最新產生的 API Key
+// 1. 確認金鑰無誤
 const API_KEY = "AIzaSyCfHAZTmRhq-S4D86jY2gUdYgUOn2HXQlw"; 
 
-// 2026 關鍵路徑：如果 v1beta 報 404，通常是因為模型名稱需要加上版本後綴
-// 我們改用最原始的 gemini-1.5-flash-latest，這是 2026 年最穩定的別名
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
+// 2. 關鍵修正：
+// 使用 v1 正式版路徑 (捨棄 v1beta)
+// 模型名稱回歸最基礎的 gemini-1.5-flash
+const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -18,7 +19,7 @@ async function sendMessage() {
 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = '正在嘗試 2026 最新路徑連線...';
+    aiMessageDiv.innerText = '正在嘗試標準正式版連線...';
     chatWindow.appendChild(aiMessageDiv);
 
     try {
@@ -32,7 +33,7 @@ async function sendMessage() {
 
         const data = await response.json();
 
-        // 如果連這個路徑都 404，我們就在網頁上列出 API 建議的正確路徑
+        // 如果正式版也報錯，這裡會抓到最底層的原因
         if (data.error) {
             throw new Error(`代碼 ${data.error.code}: ${data.error.message}`);
         }
@@ -41,7 +42,7 @@ async function sendMessage() {
         aiMessageDiv.innerText = aiText;
     } catch (error) {
         aiMessageDiv.innerText = '連線失敗：' + error.message;
-        console.error('Ming, 錯誤詳情:', error);
+        console.error('Ming，連線細節:', error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
