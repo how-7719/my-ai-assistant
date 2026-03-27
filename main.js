@@ -1,12 +1,12 @@
 import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generative-ai/+esm";
 
-// ⚠️ 請確保引號內是正確的 AIza... 開頭金鑰
+// ⚠️ 請確保這串 AIza... 貼在引號內，且前後沒有空白
 const API_KEY = "AIzaSyCXkyrtW3rC_8-pqAVUv2zYbUtB8BnHR_A"; 
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-// 嘗試使用最基礎的模型路徑
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// 核心修正：改用 gemini-pro，這是目前最穩定的路徑名稱
+const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -21,26 +21,17 @@ async function sendMessage() {
 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = '正在思考中...';
+    aiMessageDiv.innerText = '助理連線中...';
     chatWindow.appendChild(aiMessageDiv);
-    chatWindow.scrollTop = chatWindow.scrollHeight;
 
     try {
-        // 使用 generateContent 並加上錯誤攔截
+        // 直接調用 generateContent
         const result = await model.generateContent(text);
         const response = await result.response;
-        const aiText = response.text();
-        aiMessageDiv.innerText = aiText;
+        aiMessageDiv.innerText = response.text();
     } catch (error) {
-        // 如果還是 404，嘗試改用 gemini-pro (舊版但最穩)
-        aiMessageDiv.innerText = '正在切換備用模型...';
-        try {
-            const backupModel = genAI.getGenerativeModel({ model: "gemini-pro" });
-            const backupResult = await backupModel.generateContent(text);
-            aiMessageDiv.innerText = backupResult.response.text();
-        } catch (innerError) {
-            aiMessageDiv.innerText = '連線失敗：' + error.message + '。請確認 API Key 是否已在 Google AI Studio 啟用。';
-        }
+        aiMessageDiv.innerText = '連線還是失敗了：' + error.message;
+        console.error(error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
