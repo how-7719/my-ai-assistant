@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
 // ⚠️ 請在下方雙引號內貼上你的 API Key (AIza... 開頭的那串)
-const API_KEY = "你的_API_KEY_貼在這邊"; 
+const API_KEY = "AIzaSyCXkyrtW3rC_8-pqAVUv2zYbUtB8BnHR_A"; 
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 // 使用最穩定的模型名稱
