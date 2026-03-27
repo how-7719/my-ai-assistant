@@ -1,10 +1,13 @@
 import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generative-ai/+esm";
 
-// 這是你剛剛截圖中的金鑰
+// 這是你的金鑰
 const API_KEY = "AIzaSyCXkyrtW3rC_8-pqAVUv2zYbUtB8BnHR_A"; 
 
-// 關鍵修正：加入 apiVersion: "v1" 避開 beta 版的不穩定路徑
 const genAI = new GoogleGenerativeAI(API_KEY);
+
+// 【關鍵修正 1】我們嘗試多種模型名稱，直到有一個成功為止
+const modelNames = ["gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro"];
+let currentModelIndex = 0;
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -19,27 +22,35 @@ async function sendMessage() {
 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = '正在嘗試連線...';
+    aiMessageDiv.innerText = '正在嘗試與 Google AI 連線...';
     chatWindow.appendChild(aiMessageDiv);
 
-    try {
-        // 先嘗試最通用的 gemini-pro 模型
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-        const result = await model.generateContent(text);
-        const response = await result.response;
-        aiMessageDiv.innerText = response.text();
-    } catch (error) {
-        console.error("嘗試 gemini-pro 失敗:", error);
-        // 如果 pro 失敗，再嘗試 flash 模型
+    // 【關鍵修正 2】遞迴嘗試所有可能的模型路徑
+    async function tryGenerate(index) {
+        if (index >= modelNames.length) {
+            aiMessageDiv.innerText = "抱歉，目前所有 Google 模型路徑都無法連線 (404)。請確認你的 Google 帳號是否位於支援地區。";
+            return;
+        }
+
         try {
-            const flashModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-            const result = await flashModel.generateContent(text);
+            console.log(`正在嘗試模型: ${modelNames[index]}`);
+            const model = genAI.getGenerativeModel({ model: modelNames[index] });
+            const result = await model.generateContent(text);
             const response = await result.response;
             aiMessageDiv.innerText = response.text();
-        } catch (innerError) {
-            aiMessageDiv.innerText = '連線失敗：' + innerError.message + '\n\n請檢查手機是否開啟了 VPN 或廣告封鎖器。';
+        } catch (error) {
+            console.error(`模型 ${modelNames[index]} 失敗:`, error);
+            // 如果報 404，立刻嘗試下一個模型
+            if (error.message.includes('404')) {
+                aiMessageDiv.innerText = `模型 ${modelNames[index]} 找不到，正在切換...`;
+                await tryGenerate(index + 1);
+            } else {
+                aiMessageDiv.innerText = "連線發生錯誤: " + error.message;
+            }
         }
     }
+
+    await tryGenerate(0);
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
