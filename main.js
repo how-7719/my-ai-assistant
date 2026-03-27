@@ -1,8 +1,8 @@
-// 1. 確認金鑰 (請檢查是否有空格)
+// 1. 使用你提供的最新金鑰 (請確認前後沒有多餘空格)
 const API_KEY = "AIzaSyAZZVLQmfYyJDgjwRDMnGYCxxM5NWKx6jM"; 
 
-// 2. 這是 2026 目前最穩定的 Gemini 3 預覽路徑
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
+// 2. 這是 2026 年最穩定的標準路徑
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -17,42 +17,37 @@ async function sendMessage() {
 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = 'Ming，正在連線中...';
+    aiMessageDiv.innerText = 'Ming，正在與 Google 伺服器通訊...';
     chatWindow.appendChild(aiMessageDiv);
 
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{
-                    parts: [{
-                        // 強制要求 AI 認得 Ming
-                        text: `(我是 Ming，請親切稱呼我)\n${text}`
-                    }]
+                contents: [{ 
+                    parts: [{ 
+                        // 在訊息中鎖定 Ming 的身分
+                        text: `(我是 Ming，請親切回答我)\n${text}` 
+                    }] 
                 }]
             })
         });
 
         const data = await response.json();
 
-        // 核心錯誤檢查
+        // 偵錯模式：如果失敗，直接把原因印在對話框
         if (data.error) {
-            aiMessageDiv.innerText = `❌ 錯誤：${data.error.status}\n原因：${data.error.message}`;
+            aiMessageDiv.innerText = `❌ 連線失敗！\n代碼：${data.error.code}\n狀態：${data.error.status}\n原因：${data.error.message}`;
             return;
         }
 
-        if (data.candidates && data.candidates[0].content) {
-            aiMessageDiv.innerText = data.candidates[0].content.parts[0].text;
-        } else {
-            aiMessageDiv.innerText = "收到空回應，請再試一次。";
-        }
+        const aiText = data.candidates[0].content.parts[0].text;
+        aiMessageDiv.innerText = aiText;
 
     } catch (error) {
-        aiMessageDiv.innerText = "網路連線異常，請檢查金鑰或稍後再試。";
-        console.error("Ming，詳細錯誤回報：", error);
+        aiMessageDiv.innerText = "❌ 網路異常：請確認您的 GitHub Pages 是使用 HTTPS 連線。";
+        console.error('Ming，錯誤詳情:', error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
