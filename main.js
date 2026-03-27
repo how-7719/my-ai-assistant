@@ -1,7 +1,7 @@
-// 1. 保留你測試成功的 API Key
-const API_KEY = "AIzaSyBnSKr6hZpUFukLfy-QlzQPcplzQCpzDQw"; 
+// 1. 使用 Ming 剛剛提供的新金鑰
+const API_KEY = "AIzaSyAZZVLQmfYyJDgjwRDMnGYCxxM5NWKx6jM"; 
 
-// 2. 絕對不動的路徑：這是 Ming 的專屬正確通道
+// 2. 這是 Ming 之前測試成功、絕對正確的專屬路徑
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
@@ -27,7 +27,7 @@ async function sendMessage() {
             body: JSON.stringify({
                 contents: [{ 
                     parts: [{ 
-                        // 在訊息前面偷偷塞入指令，讓它記得你是 Ming
+                        // 這裡直接鎖定 Ming 的身分指令
                         text: `(指令：我是 Ming。請用親切專業的語氣回答我，並偶爾稱呼我為 Ming。)\n${text}` 
                     }] 
                 }]
