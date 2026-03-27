@@ -1,9 +1,10 @@
-// 使用你最新的 API Key
+// 使用你最新產生的 API Key
 const API_KEY = "AIzaSyCfHAZTmRhq-S4D86jY2gUdYgUOn2HXQlw"; 
 
-// 修正 1：改用 v1 正式版路徑，這比 v1beta 更穩定
-// 修正 2：模型名稱加上 -latest 確保抓到目前可用的最新版
-const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+// 修正：在 2026 年，v1beta 正式支援 gemini-3-flash-preview
+// 這個模型名稱必須跟你在 AI Studio 右上角看到的一模一樣
+const MODEL_NAME = "gemini-3-flash-preview";
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -18,7 +19,7 @@ async function sendMessage() {
 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = '正在連線正式版模型...';
+    aiMessageDiv.innerText = '正在連線 Gemini 3 核心...';
     chatWindow.appendChild(aiMessageDiv);
 
     try {
@@ -32,9 +33,9 @@ async function sendMessage() {
 
         const data = await response.json();
 
-        // 這裡會抓到最細節的 404 原因
+        // 如果報 404，代表模型名稱還是不對，我們直接顯示回傳的所有錯誤資訊
         if (data.error) {
-            console.error('詳細錯誤資訊:', data.error);
+            console.error('API Error Response:', data);
             throw new Error(`代碼 ${data.error.code}: ${data.error.message}`);
         }
 
@@ -42,6 +43,7 @@ async function sendMessage() {
         aiMessageDiv.innerText = aiText;
     } catch (error) {
         aiMessageDiv.innerText = '連線失敗：' + error.message;
+        console.error('Fetch Error:', error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
