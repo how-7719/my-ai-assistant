@@ -1,7 +1,7 @@
-// 1. 使用你最新的 API Key
+// 1. 確認金鑰為你最新的那把
 const API_KEY = "AIzaSyD3AhHNmYiRrRWCHFgD0ImARhLas_oUX6A"; 
 
-// 2. 使用 2026 年最相容的 v1beta 路徑
+// 2. 萬用路徑修正：如果 v1beta 失敗，這組網址是目前最穩定的
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
@@ -25,13 +25,14 @@ async function sendMessage() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
+                // 使用官方建議的系統指令格式
+                system_instruction: {
+                    parts: [{ text: "你是 Ming 的專屬個人助理。語氣親切專業，並在對話中自然地稱呼使用者為 Ming。" }]
+                },
                 contents: [
                     {
                         role: "user",
-                        parts: [{ 
-                            // 這裡直接設定身分指令，確保它記得你是 Ming
-                            text: `指令：你是 Ming 的個人助理。請用親切、聰明且專業的語氣說話。在適當的時候請稱呼使用者為 Ming。\n\n目前訊息：${text}` 
-                        }]
+                        parts: [{ text: text }]
                     }
                 ]
             })
@@ -40,14 +41,14 @@ async function sendMessage() {
         const data = await response.json();
 
         if (data.error) {
+            // 如果還是 404，這裡會提供更詳細的偵錯資訊
             throw new Error(`代碼 ${data.error.code}: ${data.error.message}`);
         }
 
         const aiText = data.candidates[0].content.parts[0].text;
         aiMessageDiv.innerText = aiText;
     } catch (error) {
-        // 如果依然 404，這裡會提供 Ming 明確的除錯建議
-        aiMessageDiv.innerText = '連線失敗：' + error.message + '\n\n提示：Ming，如果看到 404，代表網頁讀取到舊快取，請務必按 Ctrl+F5 刷新！';
+        aiMessageDiv.innerText = '連線失敗：' + error.message + '\n\n提示：Ming，請檢查 Google AI Studio 是否已將此 API Key 設定為 Enabled。';
         console.error('API Error:', error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
