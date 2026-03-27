@@ -1,19 +1,29 @@
-// 1. 請在此處貼上「全新」產生的 API Key
-// 注意：這裡的 __API_KEY_PLACEHOLDER__ 會被 GitHub 自動替換
 const API_KEY = "__API_KEY_PLACEHOLDER__"; 
-
-const MODEL_NAME = "gemini-3-flash-preview"; 
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
-
-// ... 以下程式碼保持不變，維持你剛才成功的邏輯 ...
-
-// 2. 鎖定 Ming 的專屬正確通道
 const MODEL_NAME = "gemini-3-flash-preview"; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
+
+// 💡 載入舊對話紀錄
+window.onload = () => {
+    const savedChat = localStorage.getItem('ming_chat_history');
+    if (savedChat) {
+        chatWindow.innerHTML = savedChat;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+};
+
+// 處理 Markdown (目前先處理加粗)
+function mdToHtml(text) {
+    return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+}
+
+// 儲存對話到瀏覽器記憶體
+function saveChat() {
+    localStorage.setItem('ming_chat_history', chatWindow.innerHTML);
+}
 
 async function sendMessage() {
     const text = inputField.value.trim();
@@ -24,7 +34,7 @@ async function sendMessage() {
 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = 'Ming，正在用新金鑰連線中...';
+    aiMessageDiv.innerText = '正在思考中...';
     chatWindow.appendChild(aiMessageDiv);
 
     try {
@@ -33,26 +43,22 @@ async function sendMessage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 contents: [{ 
-                    parts: [{ 
-                        // 身分指令：讓它記住你叫 Ming
-                        text: `(我是 Ming，請親切回答我)\n${text}` 
-                    }] 
+                    parts: [{ text: `(我是 Ming，請親切回答我並稱呼我為 Ming。)\n${text}` }] 
                 }]
             })
         });
 
         const data = await response.json();
+        if (data.error) throw new Error(data.error.message);
 
-        if (data.error) {
-            aiMessageDiv.innerText = `❌ 連線失敗\n原因：${data.error.message}`;
-            return;
-        }
-
-        const aiText = data.candidates[0].content.parts[0].text;
-        aiMessageDiv.innerText = aiText;
+        const aiRawText = data.candidates[0].content.parts[0].text;
+        
+        // 渲染並儲存
+        aiMessageDiv.innerHTML = mdToHtml(aiRawText);
+        saveChat();
 
     } catch (error) {
-        aiMessageDiv.innerText = "❌ 網路連線異常。";
+        aiMessageDiv.innerText = "抱歉，連線發生一點問題：" + error.message;
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
@@ -60,9 +66,10 @@ async function sendMessage() {
 function addMessage(text, role) {
     const div = document.createElement('div');
     div.className = `message ${role}`;
-    div.innerText = text;
+    div.innerHTML = mdToHtml(text);
     chatWindow.appendChild(div);
     chatWindow.scrollTop = chatWindow.scrollHeight;
+    saveChat();
 }
 
 sendBtn.onclick = sendMessage;
