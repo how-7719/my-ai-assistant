@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
 // ⚠️ 注意：這是在前端環境，正式發布建議使用後端中轉。
 // 目前為了讓你快速測試，請先填入你的 API Key。
-const API_KEY = "在這裡貼上你的_GEMINI_API_KEY"; 
+const API_KEY = "AIzaSyCXkyrtW3rC_8-pqAVUv2zYbUtB8BnHR_A"; 
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
