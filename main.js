@@ -1,6 +1,7 @@
-// 這次我們不使用 import，直接用原生的 fetch 請求
+// 直接使用 v1 正式版 API 路徑，避開 beta 版的 404 錯誤
 const API_KEY = "AIzaSyCXkyrtW3rC_8-pqAVUv2zYbUtB8BnHR_A"; 
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+// 修正：改用 v1 正式版路徑與 gemini-1.5-flash-latest
+const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -15,7 +16,7 @@ async function sendMessage() {
 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = '直接連線中...';
+    aiMessageDiv.innerText = '正在嘗試正式版連線...';
     chatWindow.appendChild(aiMessageDiv);
 
     try {
@@ -29,14 +30,15 @@ async function sendMessage() {
 
         const data = await response.json();
 
+        // 如果正式版報錯，顯示詳細錯誤碼
         if (data.error) {
-            throw new Error(data.error.message);
+            throw new Error(`代碼 ${data.error.code}: ${data.error.message}`);
         }
 
         const aiText = data.candidates[0].content.parts[0].text;
         aiMessageDiv.innerText = aiText;
     } catch (error) {
-        aiMessageDiv.innerText = '連線失敗：' + error.message;
+        aiMessageDiv.innerText = '連線失敗：' + error.message + '\n\n提示：如果顯示 403，代表金鑰權限問題；如果還是 404，代表該模型在您的區域尚未開放。';
         console.error('Fetch Error:', error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
