@@ -1,7 +1,9 @@
-// 使用你最新的 2026 Gemini 3 API Key
-const API_KEY = "AIzaSyBnSKr6hZpUFukLfy-QlzQPcplzQCpzDQw"; 
-// 關鍵修正：路徑改為 gemini-3-flash-preview (這是你截圖中顯示的模型)
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
+// 使用你最新的 API Key
+const API_KEY = "AIzaSyCfHAZTmRhq-S4D86jY2gUdYgUOn2HXQlw"; 
+
+// 使用目前全球最穩定的模型路徑
+const MODEL_NAME = "gemini-1.5-flash";
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -11,15 +13,19 @@ async function sendMessage() {
     const text = inputField.value.trim();
     if (!text) return;
 
+    // 1. 顯示使用者訊息
     addMessage(text, 'user');
     inputField.value = '';
 
+    // 2. 顯示 AI 正在思考
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = '正在連線最新的 Gemini 3 伺服器...';
+    aiMessageDiv.innerText = '正在思考中...';
     chatWindow.appendChild(aiMessageDiv);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 
     try {
+        // 3. 發送請求
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -30,20 +36,21 @@ async function sendMessage() {
 
         const data = await response.json();
 
-        // 如果連 Gemini 3 也報 404，這裡會捕捉到並提醒
         if (data.error) {
             throw new Error(`代碼 ${data.error.code}: ${data.error.message}`);
         }
 
+        // 4. 解析並顯示回覆
         const aiText = data.candidates[0].content.parts[0].text;
         aiMessageDiv.innerText = aiText;
     } catch (error) {
-        aiMessageDiv.innerText = '連線失敗：' + error.message + '\n\n提示：請確認您的 Google AI Studio 介面右上角顯示的模型名稱是否為 gemini-3-flash-preview。';
+        aiMessageDiv.innerText = '連線失敗：' + error.message;
         console.error('API Error:', error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
+// 輔助函式：新增訊息泡泡
 function addMessage(text, role) {
     const div = document.createElement('div');
     div.className = `message ${role}`;
@@ -52,5 +59,6 @@ function addMessage(text, role) {
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
+// 綁定按鈕點擊與 Enter 鍵
 sendBtn.onclick = sendMessage;
 inputField.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
