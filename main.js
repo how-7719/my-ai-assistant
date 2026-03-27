@@ -1,12 +1,10 @@
 import { GoogleGenerativeAI } from "https://cdn.jsdelivr.net/npm/@google/generative-ai/+esm";
 
-// ⚠️ 請確保這串 AIza... 貼在引號內，且前後沒有空白
+// 這裡已經換成你截圖中的金鑰
 const API_KEY = "AIzaSyCXkyrtW3rC_8-pqAVUv2zYbUtB8BnHR_A"; 
 
 const genAI = new GoogleGenerativeAI(API_KEY);
-
-// 核心修正：改用 gemini-pro，這是目前最穩定的路徑名稱
-const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
@@ -21,16 +19,15 @@ async function sendMessage() {
 
     const aiMessageDiv = document.createElement('div');
     aiMessageDiv.className = 'message ai';
-    aiMessageDiv.innerText = '助理連線中...';
+    aiMessageDiv.innerText = '正在思考中...';
     chatWindow.appendChild(aiMessageDiv);
 
     try {
-        // 直接調用 generateContent
         const result = await model.generateContent(text);
         const response = await result.response;
         aiMessageDiv.innerText = response.text();
     } catch (error) {
-        aiMessageDiv.innerText = '連線還是失敗了：' + error.message;
+        aiMessageDiv.innerText = '錯誤：' + error.message;
         console.error(error);
     }
     chatWindow.scrollTop = chatWindow.scrollHeight;
