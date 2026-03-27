@@ -1,5 +1,11 @@
 // 1. 請在此處貼上「全新」產生的 API Key
-const API_KEY = "AIzaSyAZBGnC351_zCZSJFbUjSgfVI52dp6L38c"; 
+// 注意：這裡的 __API_KEY_PLACEHOLDER__ 會被 GitHub 自動替換
+const API_KEY = "__API_KEY_PLACEHOLDER__"; 
+
+const MODEL_NAME = "gemini-3-flash-preview"; 
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
+
+// ... 以下程式碼保持不變，維持你剛才成功的邏輯 ...
 
 // 2. 鎖定 Ming 的專屬正確通道
 const MODEL_NAME = "gemini-3-flash-preview"; 
