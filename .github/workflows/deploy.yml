@@ -1,0 +1,26 @@
+name: Deploy Ming's AI Assistant
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-with: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Inject API Key
+        run: |
+          # 這裡會把 main.js 裡的標籤換成真正的 Secret
+          sed -i 's/__API_KEY_PLACEHOLDER__/${{ secrets.GEMINI_API_KEY }}/g' main.js
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
