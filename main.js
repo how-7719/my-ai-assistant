@@ -6,7 +6,7 @@ const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// 💡 載入舊對話紀錄
+// 💡 頁面載入時：讀取 localStorage
 window.onload = () => {
     const savedChat = localStorage.getItem('ming_chat_history');
     if (savedChat) {
@@ -20,7 +20,7 @@ function saveChat() {
     localStorage.setItem('ming_chat_history', chatWindow.innerHTML);
 }
 
-// 處理 Markdown (目前處理加粗 **)
+// 處理 Markdown 加粗 (將 **文字** 轉為 <b>文字</b>)
 function mdToHtml(text) {
     return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 }
