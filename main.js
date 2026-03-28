@@ -5,8 +5,6 @@ const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL
 const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
-
-// 💡 頁面載入時：讀取 localStorage
 window.onload = () => {
     const savedChat = localStorage.getItem('ming_chat_history');
     if (savedChat) {
@@ -14,13 +12,9 @@ window.onload = () => {
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 };
-
-// 儲存對話到瀏覽器記憶體
 function saveChat() {
     localStorage.setItem('ming_chat_history', chatWindow.innerHTML);
 }
-
-// 處理 Markdown 加粗 (將 **文字** 轉為 <b>文字</b>)
 function mdToHtml(text) {
     return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 }
