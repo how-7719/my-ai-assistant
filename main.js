@@ -1,4 +1,4 @@
-const API_KEY = "__API_KEY_PLACEHOLDER__";
+const API_KEY = "__API_KEY_PLACEHOLDER__"; 
 const MODEL_NAME = "gemini-3-flash-preview"; 
 const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
@@ -6,7 +6,7 @@ const chatWindow = document.getElementById('chat-window');
 const inputField = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// 💡 頁面載入時讀取 localStorage
+// 💡 載入舊對話紀錄
 window.onload = () => {
     const savedChat = localStorage.getItem('ming_chat_history');
     if (savedChat) {
@@ -20,7 +20,7 @@ function saveChat() {
     localStorage.setItem('ming_chat_history', chatWindow.innerHTML);
 }
 
-// 處理 Markdown 加粗
+// 處理 Markdown (目前處理加粗 **)
 function mdToHtml(text) {
     return text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
 }
